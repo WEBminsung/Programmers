@@ -1,163 +1,73 @@
-from collections import deque
-
-a=["...D...",
-   "..DG...",
-   ".......",
-   "D......",
-   "..D...."]
-def solution_(board):
-    if '':
-        print('a')
+import heapq
 def solution(board):
-    
-    row = 0
-    col = 0
-    row_max = len(board) - 1 
-    col_max = len(board[0]) - 1
-    for i, board_row in enumerate(board):
+    start = 0
+    for row,i in enumerate(board):
+        for col,j in enumerate(i):
+            if j == 'R':
+                start = (row, col)   
+    len_row = len(board)
+    len_col = len(board[0])
+    row_max = len_row - 1
+    col_max = len_col - 1
+    def dickstra(start):
         
-        if 'G' in board_row:
-            row = i
-            col = board_row.index('G')
-            break
-    
-    dic = {}
-    dic['up'] = row - 1 < 0 or board[row - 1][col] == 'D'
-    dic['down'] = row + 1 > row_max or board[row + 1][col] == 'D'
-    dic['left'] = col - 1 < 0 or board[row][col - 1] == 'D'
-    dic['right'] = col + 1 > col_max or board[row][col + 1] == 'D'
-    
-    go = None
-    sub_go = False
-    if  not dic['down'] and dic['up']:
-        go = 'down'
-        if not dic['left'] and dic['right']:
-            sub_go = True
-        elif not dic['right'] and dic['left']:
-            sub_go = True
+        distances = [[float('inf')] * len_col for i in range(len_row)]
+        distances[start[0]][start[1]] = 0
+        q = []
+        heapq.heappush(q, [0,start])
+        k = 0
+        while q:
+        # while k < 4:
+            k += 1
+            current_distance, current_destination = heapq.heappop(q)
+            row = current_destination[0]
+            col = current_destination[1]
             
-    elif not dic['up'] and dic['down']:
-        go = 'up'
-        if not dic['left'] and dic['right']:
-            sub_go = True
-        elif not dic['right'] and dic['left']:
-            sub_go = True
-    elif not dic['left'] and dic['right']:
-        go = 'left'
-        if not dic['up'] and dic['down']:
-            sub_go = True
-        elif not dic['down'] and dic['up']:
-            sub_go = True
-    elif not dic['right'] and dic['left']:
-        go = 'right'
-        if not dic['up'] and dic['down']:
-            sub_go = True
-        elif not dic['down'] and dic['up']:
-            sub_go = True
-    else:return -1
-    
-    
-    
-    
-    visit = []
-    que = deque()
-    que.append(([row,col],go))
-    
-    count = 1
-    if sub_go:
-        count = 2
-    
-    stack_count = 0
-    move = 1
-    
-    while que:
-        
-        
-        
-        rowcol, go = que.popleft()
-        
-        if rowcol in visit :
-            
-            
-            if count - 1 == 0:
-                count = stack_count
-                move += 1
-                stack_count = 0
-            else:
-                count -= 1
-            
-            continue
-            
-        if not sub_go:
-            visit.append(rowcol)
-        row = rowcol[0]
-        col = rowcol[1]
-        
-        
-        cnt = 0
-        while True:
-            if board[row][col] == 'R':
+            dic = {'up':False, 'down':False, 'left':False, 'right':False}
+            i = 0
+            while not(dic['up'] and dic['down'] and dic['left'] and dic['right']):
+                i += 1
                 
-                return move
             
-            left = col - 1 < 0 or board[row][col - 1] == 'D'
-            right = col + 1 > col_max or board[row][col + 1] == 'D'
-            up = row - 1 < 0 or board[row - 1][col] == 'D'
-            down = row + 1 > row_max or board[row + 1][col] == 'D'
-            
-            if (go == 'up' or go == 'down') and not(left and right) and (left or right):
-                if left:
-                    que.append(([row,col],'right'))
-                    cnt += 1
-                    
-                elif right:
-                    que.append(([row,col],'left'))
-                    cnt += 1
-                    
-                    
                 
+                if (row - i < 0 or board[row - i][col] == 'D') and not dic['up']:
+                    dic['up'] = (row - i + 1,col)
+                    if board[row - i + 1][col] == 'G':
+                        return current_distance + 1
+                        
                     
-            if (go == 'left' or go == 'right') and not(up and down) and (up or down):
-                if up:
-                    que.append(([row,col],'down'))
-                    cnt += 1
+                if (row + i > row_max or board[row + i][col] == 'D') and not dic['down']    :
+                    dic['down'] = (row + i - 1,col)
+                    if board[row + i - 1][col] == 'G':
+                        return current_distance + 1
                     
-                elif down:
-                    que.append(([row,col],'up'))
-                    cnt += 1
+                if (col - i < 0 or board[row][col - i] == 'D') and not dic['left']:
+                    dic['left'] = (row,col - i + 1)
+                    if board[row][col - i + 1] == 'G':
+                        return current_distance + 1
+                if (col + i > col_max or board[row][col + i] == 'D') and not dic['right']:
+                    dic['right'] = (row,col + i - 1)
+                    if board[row][col + i - 1] == 'G':
+                        return current_distance + 1
                     
-                
-            if go == 'up' and up:
-                break
-            elif go == 'up' and not up:
-                row -= 1
-            if go == 'down' and down:
-                break
-            elif go == 'down' and not down:
-                row += 1
-            if go == 'left' and left:
-                break
-            elif go == 'left' and not left:
-                col -= 1
-            if go == 'right' and right:
-                break
-            elif go == 'right' and not right:
-                col += 1
-        stack_count += cnt    
-        if sub_go:
-            stack_count -= 1
-            sub_go = False
-        
-        
-        
-        
-        if count - 1 == 0:
-            count = stack_count
-            move += 1
             
-            stack_count = 0
-        else:
-            count -= 1
+            for new_destination in dic.values():
+                
+                row, col = new_destination
+                distance = current_distance + 1
+                
+                if distances[row][col] > distance:
+                    distances[row][col] = distance
+            
+                    heapq.heappush(q, [distance, (row,col)])
+            
+        return -1
+            
         
+    
+    
+    return(dickstra(start))
+    
         
-    return -1
+    
+    

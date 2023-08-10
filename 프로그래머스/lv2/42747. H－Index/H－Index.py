@@ -1,14 +1,16 @@
-def solution(li):
-    count=0
-    for i in range(1,len(li)+1):
-        if i<=func(i,li):
-            count+=1
-    return count    
+def solution(citations):
+    citations.sort()
+    size = len(citations)
+    for i in range(size + 2):
+        while citations:
+            if i > citations[0]:
+                citations.pop(0)
+                continue
+            break
+        if i > len(citations):
+            break
+        # print(citations)
+    # print(i - 1)
     
-
-def func(n,li):
-    count=0
-    for i in li:
-        if i>=n:
-            count+=1
-    return count
+    return i -1
+    
